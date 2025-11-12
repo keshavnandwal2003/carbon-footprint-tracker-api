@@ -12,6 +12,8 @@ import arcjetMiddleware from "./middleware/arcjetMiddleware.js";
 
 const app = express();
 
+connectDB();
+
 app.use(helmet());
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
@@ -31,7 +33,6 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, async () => {
-    await connectDB();
+app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`)
 });
