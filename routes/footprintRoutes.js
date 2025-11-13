@@ -12,10 +12,10 @@ const router = express.Router();
 // Create a new footprint entry
 router.post("/", protect, addFootprint);
 
-// Get all footprint entries for the logged-in user
+// Get all footprints for logged-in user
 router.get("/", protect, getUserFootprints);
 
-// Get total footprint summary for the user
+// Get total footprint summary for logged-in user
 router.get("/summary", protect, getSummary);
 
 // Delete a footprint entry by ID
