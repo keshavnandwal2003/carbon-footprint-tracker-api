@@ -2,23 +2,23 @@ import mongoose from "mongoose";
 
 const carbonFootprintSchema = new mongoose.Schema(
     {
-        energyKwh: { type: Number, required: true, min: 0 },
-        gasTherms: { type: Number, required: true, min: 0 },
+        energyKwh: { type: Number, min: 0, default: 0 },
+        gasTherms: { type: Number, min: 0, default: 0 },
 
-        transportCar: { type: Number, required: true, min: 0 },
-        transportBus: { type: Number, required: true, min: 0 },
-        transportTrain: { type: Number, required: true, min: 0 },
+        transportCar: { type: Number, min: 0, default: 0 },
+        transportBus: { type: Number, min: 0, default: 0 },
+        transportTrain: { type: Number, min: 0, default: 0 },
 
-        transportFlight: { type: Number, required: true, min: 0 },
+        transportFlight: { type: Number, min: 0, default: 0 },
 
         diet: {
             type: String,
-            enum: ["dietOmnivore", "dietVegetarian", "dietVegan"],
-            default: "dietOmnivore",
-            required: true
+            enum: ["omnivore", "vegetarian", "vegan"],
+            default: "omnivore",
+
         },
 
-        wastePeople: { type: Number, required: true, min: 1 },
+        wastePeople: { type: Number, min: 1, default: 1 },
 
         totalFootprint: { type: Number, default: 0 },
 
