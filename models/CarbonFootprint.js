@@ -1,61 +1,70 @@
 import mongoose from "mongoose";
-import fs from "fs";
-import path from "path";
 
-const footprintSchema = new mongoose.Schema({
-    user_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+const carbonFootprintSchema = new mongoose.Schema(
+    {
+        energyKwh: { type: Number, required: true, min: 0 },
+        gasTherms: { type: Number, required: true, min: 0 },
+
+        transportCar: { type: Number, required: true, min: 0 },
+        transportBus: { type: Number, required: true, min: 0 },
+        transportTrain: { type: Number, required: true, min: 0 },
+
+        transportFlight: { type: Number, required: true, min: 0 },
+
+        diet: {
+            type: String,
+            enum: ["dietOmnivore", "dietVegetarian", "dietVegan"],
+            default: "dietOmnivore",
+            required: true
+        },
+
+        wastePeople: { type: Number, required: true, min: 1 },
+
+        totalFootprint: { type: Number, default: 0 },
+
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     },
-    category: {
-        type: String,
-        enum: [
-            "transport",
-            "energy",
-            "food",
-            "waste",
-            "water",
-            "shopping",
-            "digital",
-            "home",
-            "travel",
-            "offsets",
-            "other",
-        ],
-        required: true,
-    },
-    activity_name: { type: String, required: true, trim: true },
-    amount: { type: Number, required: true, min: 0 },
-    unit: { type: String, required: true },
-    emission_factor: { type: Number, min: 0 },
-    emission_total: { type: Number, min: 0 },
-    date_recorded: { type: Date, default: Date.now },
-    notes: { type: String, trim: true, maxlength: 300 },
-}, {
-    timestamps: true,
-});
+    { timestamps: true }
+);
 
-// Load emission factors only once
-const emissionFactorsPath = path.join(process.cwd(), "data", "emissionFactors.json");
-const emissionFactors = JSON.parse(fs.readFileSync(emissionFactorsPath, "utf-8"));
+carbonFootprintSchema.pre("save", function (next) {
+    // Realistic emission factors
+    const EF = {
+        electricity: 0.7132,    // kg CO₂e per kWh (India estimate)  
+        gas: 5.3,               // kg CO₂e per therm (US EPA)  
+        car: 0.44,              // kg CO₂e per mile  
+        bus: 0.33,              // kg CO₂e per passenger mile  
+        train: 0.080,           // kg CO₂e per mile  
+        flight: 0.254,          // kg CO₂e per mile (you can choose a value)  
+        diet: {
+            dietOmnivore: 14.0,   // kg CO₂e per person per week (example)  
+            dietVegetarian: 8.0,
+            dietVegan: 6.0
+        },
+        waste: 21.0             // kg CO₂e per person per month (example)  
+    };
 
-// Pre-validate hook to auto-calculate emission factor + total
-footprintSchema.pre("validate", function (next) {
-    const categoryData = emissionFactors[this.category];
-    if (categoryData) {
-        const factor =
-            categoryData[this.activity_name?.toLowerCase()] ??
-            categoryData["default"] ??
-            1.0;
-        this.emission_factor = factor;
-        this.emission_total = this.amount * factor;
-    } else {
-        // fallback
-        this.emission_factor = 1.0;
-        this.emission_total = this.amount;
-    }
+    const weeksPerMonth = 4.33;
+
+    const energyFootprint =
+        this.energyKwh * EF.electricity +
+        this.gasTherms * EF.gas;
+
+    const transportFootprint =
+        this.transportCar * EF.car * weeksPerMonth +
+        this.transportBus * EF.bus * weeksPerMonth +
+        this.transportTrain * EF.train * weeksPerMonth +
+        this.transportFlight * EF.flight;
+
+    const dietFootprint = EF.diet[this.diet] * weeksPerMonth;
+
+    const wasteFootprint = EF.waste * this.wastePeople;
+
+    this.totalFootprint =
+        energyFootprint + transportFootprint + dietFootprint + wasteFootprint;
+
     next();
 });
 
-export default mongoose.model("CarbonFootprint", footprintSchema);
+const CarbonFootprint = mongoose.model("CarbonFootprint", carbonFootprintSchema);
+export default CarbonFootprint;

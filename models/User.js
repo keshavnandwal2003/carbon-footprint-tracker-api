@@ -20,7 +20,10 @@ const userSchema = new mongoose.Schema({
         required: [true, "Password is required"],
         minlength: 6,
     },
-    country: String,
+    country: {
+        type: String,
+        default: "India"
+    },
     role: { type: String, enum: ["user", "admin"], default: "user" },
 }, { timestamps: true });
 

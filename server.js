@@ -9,7 +9,6 @@ import footprintRoutes from "./routes/footprintRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import arcjetMiddleware from "./middleware/arcjetMiddleware.js";
 
-
 const app = express();
 
 connectDB();
