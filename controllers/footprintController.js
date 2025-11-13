@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 // ------------------------------
 export const addFootprint = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.id;
         const { totalFootprint, breakdown } = req.body;
 
         if (
@@ -25,7 +25,7 @@ export const addFootprint = async (req, res) => {
         }
 
         const footprint = await CarbonFootprint.create({
-            user: userId,
+            user_id: userId,
             totalFootprint,
             breakdown,
         });

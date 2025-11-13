@@ -1,24 +1,21 @@
 import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+import CarbonFootprint from "../models/CarbonFootprint.js";
 
-export const protect = async (req, res, next) => {
+export const protect = (req, res, next) => {
     let token;
-    if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith("Bearer")
+    ) {
+        token = req.headers.authorization.split(" ")[1];
         try {
-            token = req.headers.authorization.split(" ")[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            req.user = await User.findById(decoded.id).select("-password_hash");
-            if (!req.user) {
-                res.status(401);
-                throw new Error("User not found");
-            }
+            req.user = { id: decoded.id }; // user id from token
             next();
-        } catch (error) {
-            res.status(401);
-            next(new Error("Invalid or expired token"));
+        } catch (err) {
+            return res.status(401).json({ message: "Not authorized" });
         }
     } else {
-        res.status(401);
-        next(new Error("No token provided"));
+        return res.status(401).json({ message: "No token provided" });
     }
 };
