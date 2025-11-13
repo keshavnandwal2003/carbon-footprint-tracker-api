@@ -1,4 +1,4 @@
-import CarbonFootprint from "../models/carbonFootprint.model.js";
+import CarbonFootprint from "../models/CarbonFootprint.js";
 import mongoose from "mongoose";
 
 // ------------------------------

@@ -4,8 +4,8 @@ import {
     getUserFootprints,
     getSummaryByCategory,
     deleteFootprint,
-} from "../controllers/carbonFootprint.controller.js";
-import { protect } from "../middlewares/auth.middleware.js";
+} from "../controllers/footprintController.js";
+import { protect } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
