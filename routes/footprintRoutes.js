@@ -5,7 +5,7 @@ import {
     getSummaryByCategory,
     deleteFootprint,
 } from "../controllers/footprintController.js";
-import { protect } from "../middlewares/authMiddleware.js";
+import { protect } from "../middleware/authMiddleware.js"
 
 const router = express.Router();
 
