@@ -1,0 +1,50 @@
+{
+  "transport": {
+    "car": 0.21,
+    "bus": 0.08,
+    "train": 0.05,
+    "bike": 0.0,
+    "airplane": 0.15
+  },
+  "energy": {
+    "electricity": 0.475,
+    "natural_gas": 2.03,
+    "lpg": 1.51
+  },
+  "food": {
+    "beef": 27.0,
+    "chicken": 6.9,
+    "vegetables": 2.0,
+    "rice": 4.0
+  },
+  "waste": {
+    "plastic": 1.7,
+    "paper": 0.9,
+    "metal": 1.4
+  },
+  "water": {
+    "consumption": 0.0003
+  },
+  "shopping": {
+    "clothing": 14.0,
+    "electronics": 50.0
+  },
+  "digital": {
+    "internet": 0.0002,
+    "video_streaming": 0.004
+  },
+  "home": {
+    "heating": 2.5,
+    "cooling": 1.8
+  },
+  "travel": {
+    "domestic_flight": 0.25,
+    "international_flight": 0.3
+  },
+  "offsets": {
+    "tree_planting": -10.0
+  },
+  "other": {
+    "default": 1.0
+  }
+}

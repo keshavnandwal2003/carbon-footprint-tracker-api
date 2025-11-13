@@ -2,14 +2,16 @@ import express from "express";
 import {
     addFootprint,
     getUserFootprints,
-    getUserMonthlyTotal,
-} from "../controllers/footprintController.js";
-import { protect } from "../middleware/authMiddleware.js";
+    getSummaryByCategory,
+    deleteFootprint,
+} from "../controllers/carbonFootprint.controller.js";
+import { protect } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
 router.post("/", protect, addFootprint);
-router.get("/:userId", protect, getUserFootprints);
-router.get("/:userId/summary", protect, getUserMonthlyTotal);
+router.get("/", protect, getUserFootprints);
+router.get("/summary", protect, getSummaryByCategory);
+router.delete("/:id", protect, deleteFootprint);
 
 export default router;
