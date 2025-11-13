@@ -7,23 +7,43 @@ import mongoose from "mongoose";
 export const addFootprint = async (req, res) => {
     try {
         const userId = req.user._id; // from auth middleware (JWT)
-        const { category, activity_name, amount, unit, date_recorded, notes } = req.body;
+        const {
+            energyKwh,
+            gasTherms,
+            transportCar,
+            transportBus,
+            transportTrain,
+            transportFlight,
+            wastePeople,
+        } = req.body;
 
-        if (!category || !activity_name || !amount || !unit) {
+        // Validate required fields
+        if (
+            energyKwh == null ||
+            gasTherms == null ||
+            transportCar == null ||
+            transportBus == null ||
+            transportTrain == null ||
+            transportFlight == null ||
+            wastePeople == null
+        ) {
             return res.status(400).json({
                 success: false,
-                message: "Missing required fields (category, activity_name, amount, unit).",
+                message:
+                    "Missing required fields: energyKwh, gasTherms, transportCar, transportBus, transportTrain, transportFlight, wastePeople.",
             });
         }
 
+        // Create new footprint entry
         const footprint = await CarbonFootprint.create({
-            user_id: userId,
-            category,
-            activity_name,
-            amount,
-            unit,
-            date_recorded,
-            notes,
+            user: userId,
+            energyKwh,
+            gasTherms,
+            transportCar,
+            transportBus,
+            transportTrain,
+            transportFlight,
+            wastePeople,
         });
 
         return res.status(201).json({
@@ -47,7 +67,9 @@ export const addFootprint = async (req, res) => {
 export const getUserFootprints = async (req, res) => {
     try {
         const userId = req.user._id;
-        const footprints = await CarbonFootprint.find({ user_id: userId }).sort({ createdAt: -1 });
+        const footprints = await CarbonFootprint.find({ user: userId }).sort({
+            createdAt: -1,
+        });
 
         return res.status(200).json({
             success: true,
@@ -65,31 +87,28 @@ export const getUserFootprints = async (req, res) => {
 };
 
 // ------------------------------
-// Get a summary by category (for dashboard charts)
+// Get a summary of totalFootprint
 // ------------------------------
-export const getSummaryByCategory = async (req, res) => {
+export const getSummary = async (req, res) => {
     try {
         const userId = req.user._id;
 
         const summary = await CarbonFootprint.aggregate([
-            { $match: { user_id: new mongoose.Types.ObjectId(userId) } },
+            { $match: { user: new mongoose.Types.ObjectId(userId) } },
             {
                 $group: {
-                    _id: "$category",
-                    total_emission: { $sum: "$emission_total" },
+                    _id: null,
+                    totalFootprint: { $sum: "$totalFootprint" },
                     entries: { $sum: 1 },
                 },
             },
-            { $sort: { total_emission: -1 } },
         ]);
 
         return res.status(200).json({
             success: true,
-            data: summary.map((item) => ({
-                category: item._id,
-                total_emission: item.total_emission,
-                entries: item.entries,
-            })),
+            data: summary.length
+                ? { totalFootprint: summary[0].totalFootprint, entries: summary[0].entries }
+                : { totalFootprint: 0, entries: 0 },
         });
     } catch (error) {
         console.error("Error generating summary:", error);
@@ -111,7 +130,7 @@ export const deleteFootprint = async (req, res) => {
 
         const entry = await CarbonFootprint.findOneAndDelete({
             _id: id,
-            user_id: userId,
+            user: userId,
         });
 
         if (!entry) {
