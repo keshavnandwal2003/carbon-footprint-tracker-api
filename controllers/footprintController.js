@@ -50,8 +50,8 @@ export const addFootprint = async (req, res) => {
 // ------------------------------
 export const getUserFootprints = async (req, res) => {
     try {
-        const userId = req.user._id;
-        const footprints = await CarbonFootprint.find({ user: userId }).sort({
+        const userId = req.user.id;
+        const footprints = await CarbonFootprint.find({ user_id: userId }).sort({
             createdAt: -1,
         });
 
@@ -75,7 +75,7 @@ export const getUserFootprints = async (req, res) => {
 // ------------------------------
 export const getSummary = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.id;
 
         const summary = await CarbonFootprint.aggregate([
             { $match: { user: mongoose.Types.ObjectId(userId) } },
@@ -135,7 +135,7 @@ export const getSummary = async (req, res) => {
 // ------------------------------
 export const updateFootprint = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.id;
         const { id } = req.params;
         const { totalFootprint, breakdown } = req.body;
 
@@ -187,7 +187,7 @@ export const updateFootprint = async (req, res) => {
 // ------------------------------
 export const deleteFootprint = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.id;
         const { id } = req.params;
 
         const entry = await CarbonFootprint.findOneAndDelete({ _id: id, user: userId });
